@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
+import postsRoutes from './routes/posts.js';
 
 // 1. ENVIRONMENT AND PATH CONFIGURATION
 const __filename = fileURLToPath(import.meta.url);
@@ -43,7 +44,7 @@ async function startServer() {
     app.use(cookieParser());
     app.use(
       cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+         origin: process.env.FRONTEND_URL || ['http://localhost:3000','http://localhost:5173'],
         credentials: true,
         optionsSuccessStatus: 200,
       })
@@ -51,6 +52,10 @@ async function startServer() {
 
     // Mount authentication routes
     app.use('/api/auth', authRoutes);
+
+    
+    // Mount posts CRUD routes
+    app.use('/api/posts', postsRoutes);
 
     // Health check endpoint
     app.get('/health', (req, res) => {
