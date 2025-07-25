@@ -1,16 +1,27 @@
 // server/middleware/auth.js
 import jwt from 'jsonwebtoken';
 
-export function requireAuth(req, res, next) {
+/**
+ * Named export `auth`
+ * Checks for a JWT in the `token` cookie, verifies it,
+ * and sets req.userId. Otherwise sends 401.
+ */
+export function auth(req, res, next) {
+  const token = req.cookies?.token;
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   try {
-    const token = req.cookies.token;
-    if (!token) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = payload.id;
+    const { userId } = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = userId;
     next();
   } catch (err) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    console.error('Auth error:', err);
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 }
+
+
+
+
+
