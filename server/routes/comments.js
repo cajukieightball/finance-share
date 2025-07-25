@@ -2,6 +2,7 @@
 import express from 'express';
 import Comment from '../models/Comment.js';
 import { auth as requireAuth } from '../middleware/auth.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -35,17 +36,29 @@ router.post('/', requireAuth, async (req, res) => {
 
 // PATCH /api/comments/:id
 router.patch('/:id', requireAuth, async (req, res) => {
-  const comment = await Comment.findById(req.params.id);
-  if (!comment || comment.author.toString() !== req.userId) {
+  const { id } = req.params;
+  const { content } = req.body;
+
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ error: 'Invalid comment ID' });
+  }
+
+  const comment = await Comment.findById(id);
+  if (!comment) return res.status(404).json({ error: 'Comment not found' });
+
+  if (comment.author.toString() !== req.userId) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
-  const { content } = req.body;
-  if (content !== undefined) {
-    comment.content = content;
+  if (!content?.trim()) {
+    return res.status(400).json({ error: 'Content required' });
   }
 
+  comment.content = content;
+  comment.updatedAt = new Date();
   await comment.save();
+  await comment.populate('author', 'username');
+
   res.json(comment);
 });
 
