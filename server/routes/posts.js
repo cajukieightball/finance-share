@@ -3,6 +3,7 @@ import express from 'express';
 import { auth } from '../middleware/auth.js';
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -90,17 +91,22 @@ router.patch('/:id', auth, async (req, res) => {
 });
 
 // DELETE /api/posts/:id — delete own post
-router.delete('/:id', auth, async (req, res) => {
-  try {
-    const result = await Post.deleteOne({ _id: req.params.id, author: req.userId });
-    if (result.deletedCount === 0) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    res.sendStatus(204);
-  } catch (err) {
-    console.error('Delete post error:', err);
-    res.status(500).json({ error: 'Server error' });
+router.delete("/:id", auth, async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ error: "Invalid post ID" });
   }
+
+  const post = await Post.findById(id);
+  if (!post) return res.status(404).json({ error: "Not found" });
+
+  if (post.author.toString() !== req.userId) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  await post.deleteOne();
+  res.json({ success: true });
 });
 
 export default router;

@@ -4,7 +4,7 @@ import NewCommentForm from './NewCommentForm';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function PostCard({ post, onCommentOrLike }) {
+export default function PostCard({ post, onCommentOrLike, onDeleted }) {
   const { user } = useAuth(); // ✅ Safe and correct
   const [showComments, setShowComments] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -28,21 +28,22 @@ export default function PostCard({ post, onCommentOrLike }) {
     onCommentOrLike();
   };
 
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const handleDeleteConfirm = async () => {
+  const authorName = post.author?.username || 'Unknown';
+
+
+  const remove = async () => {
+    if (!window.confirm("Delete this post?")) return;
     try {
       await api.delete(`/posts/${post._id}`);
-      onCommentOrLike();
+      onDeleted(post._id); // ✅ Notify parent to remove from UI
     } catch (err) {
-      console.error('Error deleting post:', err);
+      console.error("Error deleting post:", err);
+      alert(err.response?.data?.error || "Could not delete post");
     }
-    setConfirmingDelete(false);
   };
 
 
-
-  const authorName = post.author?.username || 'Unknown';
 
   return (
     <div className="post-card">
@@ -51,13 +52,6 @@ export default function PostCard({ post, onCommentOrLike }) {
         <em>{new Date(post.createdAt).toLocaleString()}</em>
       </div>
 
-      {confirmingDelete && (
-        <div className="modal">
-          <p>Are you sure you want to delete this post?</p>
-          <button onClick={handleDeleteConfirm}>Yes, delete</button>
-          <button onClick={() => setConfirmingDelete(false)}>Cancel</button>
-        </div>
-      )}
 
       {isEditing ? (
         <div>
@@ -82,9 +76,10 @@ export default function PostCard({ post, onCommentOrLike }) {
           {post.author?._id === user?._id && (
             <>
               <button onClick={() => setIsEditing(true)}>✏️ Edit</button>
-              <button onClick={() => setConfirmingDelete(true)}>🗑️ Delete</button>
+              <button onClick={remove} style={{ color: "red" }}>🗑️ Delete</button>
             </>
           )}
+
         </>
       )}
 

@@ -12,9 +12,9 @@ export default function FeedPage() {
   // };
 
   const fetchPosts = async () => {
-  const res = await api.get('/posts', { withCredentials: true });
-  setPosts(res.data); 
-};
+    const res = await api.get('/posts', { withCredentials: true });
+    setPosts(res.data);
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -24,7 +24,9 @@ export default function FeedPage() {
     fetchPosts();
   };
 
-  
+  const removeLocal = (id) => {
+    setPosts((ps) => ps.filter((p) => p._id !== id));
+  };
 
 
   return (
@@ -33,7 +35,13 @@ export default function FeedPage() {
       <NewPostForm onPost={handleNewPost} />
       {posts.length === 0 && <p>No posts yet.</p>}
       {posts.map(post => (
-        <PostCard key={post._id} post={post} onCommentOrLike={fetchPosts} />
+        <PostCard
+          key={post._id}
+          post={post}
+          onCommentOrLike={fetchPosts}
+          onDeleted={removeLocal}
+        />
+
       ))}
     </div>
   );
