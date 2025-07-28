@@ -6,8 +6,8 @@
   "scripts": {
     "start": "set NODE_ENV=production&& node server.js",
     "dev": "nodemon --trace-warnings server.js",
-    "test": "set NODE_OPTIONS=--experimental-vm-modules&& jest",
-    "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules CI=true jest",
+    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
+    "test:ci": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules CI=true jest",
     "lint": "eslint --fix --ext .js,.jsx .",
     "format": "prettier --write .",
     "healthcheck": "node -e \"import('node-fetch').then(m=>m.default('http://localhost:4000/health').then(r=>r.json()).then(console.log)).catch(console.error)\"",
@@ -44,12 +44,5 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "transform": {},
-    "extensionsToTreatAsEsm": [
-      ".js"
-    ]
   }
 }

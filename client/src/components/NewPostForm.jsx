@@ -4,7 +4,7 @@ import api from '../services/api';
 
 export default function NewPostForm({ onPost }) {
   const [content, setContent] = useState('');
-  const [tags, setTags]       = useState('');
+  const [tags, setTags] = useState('');
 
   const handleSubmit = async e => {
     e.preventDefault();

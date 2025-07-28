@@ -1,48 +1,291 @@
+// import React, { useEffect, useState } from 'react';
+// import api from '../services/api';
+// import PostCard from '../components/PostCard';
+// import NewPostForm from '../components/NewPostForm';
+// import TagList from "../components/TagList";
+
+
+// export default function FeedPage() {
+//   const [posts, setPosts] = useState([]);
+
+//   // const loadPosts = async () => {
+//   //   const { data } = await api.get('/posts', { withCredentials: true });
+//   //   setPosts(data);
+//   // };
+
+//   const fetchPosts = async () => {
+//     const res = await api.get('/posts', { withCredentials: true });
+//     setPosts(res.data);
+//   };
+
+//   useEffect(() => {
+//     fetchPosts();
+//   }, []);
+
+
+
+// //tags
+//   useEffect(() => {
+//     api.get(`/posts${selectedTag ? "?tag=" + selectedTag : ""}`)
+//       .then(res => setPosts(res.data))
+//       .catch(console.error);
+//   }, [selectedTag]);
+
+//   useEffect(() => {
+//     api.get("/posts/tags")
+//       .then(res => setAllTags(res.data))
+//       .catch(console.error);
+//   }, []);
+
+
+
+
+
+
+
+
+
+//   const handleNewPost = () => {
+//     fetchPosts();
+//   };
+
+//   const removeLocal = (id) => {
+//     setPosts((ps) => ps.filter((p) => p._id !== id));
+//   };
+
+
+//   return (
+//     <div className="feed-container">
+//       <h1>Your Feed</h1>
+//       <NewPostForm onPost={handleNewPost} />
+//       {posts.length === 0 && <p>No posts yet.</p>}
+//       {posts.map(post => (
+//         <PostCard
+//           key={post._id}
+//           post={post}
+//           onCommentOrLike={fetchPosts}
+//           onDeleted={removeLocal}
+//         />
+
+
+// <div>
+//       <h1>Your Feed</h1>
+//       <TagList tags={allTags} selectedTag={selectedTag} onTagClick={setSelectedTag} />
+//       {posts.map(post => (
+//         <PostCard key={post._id} post={post} />
+
+//       ))}
+//     </div>
+
+    
+//   );
+// }
+
+
+
+
+
+
+
+// // FeedPage.jsx
+// import React, { useEffect, useState } from 'react';
+// import api from '../services/api';
+// import PostCard from '../components/PostCard';
+// import NewPostForm from '../components/NewPostForm';
+// import TagList from '../components/TagList';
+
+// export default function FeedPage() {
+//   const [posts, setPosts] = useState([]);
+//   const [allTags, setAllTags] = useState([]);
+//   const [selectedTag, setSelectedTag] = useState("");
+
+//   const fetchPosts = async () => {
+//     const res = await api.get(`/posts${selectedTag ? "?tag=" + selectedTag : ""}`);
+//     setPosts(res.data);
+//   };
+
+//   useEffect(() => {
+//     fetchPosts();
+//   }, [selectedTag]);
+
+//   useEffect(() => {
+//     api.get("/posts/tags")
+//       .then(res => setAllTags(res.data))
+//       .catch(console.error);
+//   }, []);
+
+//   const handleNewPost = () => {
+//     fetchPosts();
+//   };
+
+//   const removeLocal = (id) => {
+//     setPosts((ps) => ps.filter((p) => p._id !== id));
+//   };
+
+//   return (
+//     <div className="feed-container">
+//       <h1>Your Feed</h1>
+//       <TagList tags={allTags} selectedTag={selectedTag} onTagClick={setSelectedTag} />
+//       <NewPostForm onPost={handleNewPost} />
+//       {posts.length === 0 && <p>No posts yet.</p>}
+//       {posts.map(post => (
+//         <PostCard
+//           key={post._id}
+//           post={post}
+//           onCommentOrLike={fetchPosts}
+//           onDeleted={removeLocal}
+//         />
+//       ))}
+//     </div>
+//   );
+// }
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import PostCard from '../components/PostCard';
-import NewPostForm from '../components/NewPostForm';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function FeedPage() {
+  const { user } = useAuth();
   const [posts, setPosts] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [selectedTag, setSelectedTag] = useState('');
+  const [content, setContent] = useState('');
+  const [newTags, setNewTags] = useState('');
 
-  // const loadPosts = async () => {
-  //   const { data } = await api.get('/posts', { withCredentials: true });
-  //   setPosts(data);
-  // };
+  const fetchPosts = async (tag = '') => {
+    try {
+      const res = await api.get(`/posts${tag ? `?tag=${tag}` : ''}`, {
+        withCredentials: true,
+      });
+      setPosts(res.data);
+    } catch (err) {
+      console.error('Fetch posts error:', err);
+    }
+  };
 
-  const fetchPosts = async () => {
-    const res = await api.get('/posts', { withCredentials: true });
-    setPosts(res.data);
+  const fetchTags = async () => {
+    try {
+      const res = await api.get('/posts/tags', { withCredentials: true });
+      setTags(res.data);
+    } catch (err) {
+      console.error('Fetch tags error:', err);
+    }
   };
 
   useEffect(() => {
     fetchPosts();
+    fetchTags();
   }, []);
 
-  const handleNewPost = () => {
+  const handleTagClick = (tag) => {
+    setSelectedTag(tag);
+    fetchPosts(tag);
+  };
+
+  const clearFilter = () => {
+    setSelectedTag('');
     fetchPosts();
   };
 
-  const removeLocal = (id) => {
-    setPosts((ps) => ps.filter((p) => p._id !== id));
+  const handlePost = async () => {
+    if (!content.trim()) return;
+    try {
+      await api.post(
+        '/posts',
+        {
+          content,
+          tags: newTags
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0),
+        },
+        { withCredentials: true }
+      );
+      setContent('');
+      setNewTags('');
+      fetchPosts(selectedTag);
+      fetchTags();
+    } catch (err) {
+      console.error('Create post error:', err);
+      alert(err.response?.data?.error || 'Could not create post');
+    }
   };
-
 
   return (
     <div className="feed-container">
       <h1>Your Feed</h1>
-      <NewPostForm onPost={handleNewPost} />
+
+      {/* Tag Filter */}
+      <div style={{ marginBottom: '1rem' }}>
+        {tags.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => handleTagClick(tag)}
+            style={{
+              margin: '0.25rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '20px',
+              border: selectedTag === tag ? '2px solid white' : '1px solid gray',
+              backgroundColor: selectedTag === tag ? '#444' : 'transparent',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            {tag}
+          </button>
+        ))}
+        {selectedTag && (
+          <button
+            onClick={clearFilter}
+            style={{
+              marginLeft: '1rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '20px',
+              border: '1px solid red',
+              backgroundColor: 'transparent',
+              color: 'red',
+              cursor: 'pointer',
+            }}
+          >
+            Clear Filter
+          </button>
+        )}
+      </div>
+
+      {/* Post Input Section */}
+      <div className="post-input-container">
+        <textarea
+          className="post-textarea"
+          placeholder="What's on your mind?"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+
+        <input
+          className="tag-input"
+          type="text"
+          placeholder="Tags (comma separated)"
+          value={newTags}
+          onChange={(e) => setNewTags(e.target.value)}
+        />
+
+        <button className="post-button" onClick={handlePost}>
+          Post
+        </button>
+      </div>
+
       {posts.length === 0 && <p>No posts yet.</p>}
-      {posts.map(post => (
+
+      {posts.map((post) => (
         <PostCard
           key={post._id}
           post={post}
-          onCommentOrLike={fetchPosts}
-          onDeleted={removeLocal}
+          onCommentOrLike={() => fetchPosts(selectedTag)}
         />
-
       ))}
     </div>
   );
 }
+
+
+

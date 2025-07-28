@@ -1,29 +1,305 @@
 // server/routes/posts.js
+// import express from 'express';
+// import { auth } from '../middleware/auth.js';
+// import Post from '../models/Post.js';
+// import Comment from '../models/Comment.js';
+// import mongoose from 'mongoose';
+
+// const router = express.Router();
+
+
+
+// // GET /api/posts — list all posts with comment count
+// router.get('/', auth, async (_req, res) => {
+//   try {
+//     const posts = await Post.find()
+//       .sort({ createdAt: -1 })
+//       .populate('author', 'username');
+
+//     // Add commentCount for each post
+//     const postsWithCounts = await Promise.all(
+//       posts.map(async (post) => {
+//         const commentCount = await Comment.countDocuments({ post: post._id });
+//         return {
+//           ...post.toObject(),
+//           commentCount,
+//         };
+//       })
+//     );
+
+//     res.json(postsWithCounts);
+//   } catch (err) {
+//     console.error('Fetch posts error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+
+// //post
+// router.post('/', auth, async (req, res) => {
+//   try {
+//     const { content, tags = [] } = req.body;
+//     const post = new Post({ author: req.userId, content, tags, likes: [] });
+//     await post.save();
+
+//     // ✅ Populate author before returning
+//     const populatedPost = await post.populate('author', 'username');
+
+//     res.status(201).json(populatedPost);
+//   } catch (err) {
+//     console.error('Create post error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+
+// // POST /api/posts/:id/like — toggle like
+// router.post('/:id/like', auth, async (req, res) => {
+//   try {
+//     const post = await Post.findById(req.params.id);
+//     if (!post) return res.status(404).json({ error: 'Post not found' });
+//     const idx = post.likes.indexOf(req.userId);
+//     if (idx === -1) post.likes.push(req.userId);
+//     else post.likes.splice(idx, 1);
+//     await post.save();
+//     res.json({ likeCount: post.likes.length });
+//   } catch (err) {
+//     console.error('Like error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// // PATCH /api/posts/:id — update a post’s content and tags
+// router.patch('/:id', auth, async (req, res) => {
+//   try {
+//     const post = await Post.findById(req.params.id);
+//     if (!post || post.author.toString() !== req.userId) {
+//       return res.status(403).json({ error: 'Forbidden' });
+//     }
+
+//     const { content, tags } = req.body;
+//     if (content !== undefined) post.content = content;
+//     if (tags !== undefined) post.tags = tags;
+
+//     await post.save();
+//     const populated = await post.populate('author', 'username');
+//     res.json(populated);
+//   } catch (err) {
+//     console.error('Update post error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// // DELETE /api/posts/:id — delete own post
+// router.delete("/:id", auth, async (req, res) => {
+//   const { id } = req.params;
+
+//   if (!mongoose.isValidObjectId(id)) {
+//     return res.status(400).json({ error: "Invalid post ID" });
+//   }
+
+//   const post = await Post.findById(id);
+//   if (!post) return res.status(404).json({ error: "Not found" });
+
+//   if (post.author.toString() !== req.userId) {
+//     return res.status(403).json({ error: "Forbidden" });
+//   }
+
+//   await post.deleteOne();
+//   res.json({ success: true });
+// });
+
+// export default router;
+
+
+
+
+
+
+
+// //test
+// // server/routes/posts.js
+// import express from 'express';
+// import mongoose from 'mongoose';
+// import { auth } from '../middleware/auth.js';
+// import Post from '../models/Post.js';
+// import Comment from '../models/Comment.js';
+
+// const router = express.Router();
+
+// // GET /api/posts — list all posts with commentCount
+// router.get('/', auth, async (_req, res) => {
+//   try {
+//     const posts = await Post.find()
+//       .sort({ createdAt: -1 })
+//       .populate('author', 'username');
+
+//     const postsWithCounts = await Promise.all(
+//       posts.map(async (post) => {
+//         const count = await Comment.countDocuments({ post: post._id });
+//         return { ...post.toObject(), commentCount: count };
+//       })
+//     );
+
+//     res.json(postsWithCounts);
+//   } catch (err) {
+//     console.error('Fetch posts error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// // POST /api/posts — create a new post
+// router.post('/', auth, async (req, res) => {
+//   try {
+//     const { content, tags = [] } = req.body;
+//     const post = new Post({ author: req.userId, content, tags, likes: [] });
+//     await post.save();
+
+//     const populated = await post.populate('author', 'username');
+//     res.status(201).json(populated);
+//   } catch (err) {
+//     console.error('Create post error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// // POST /api/posts/:id/like — toggle like
+// router.post('/:id/like', auth, async (req, res) => {
+//   try {
+//     const post = await Post.findById(req.params.id);
+//     if (!post) return res.status(404).json({ error: 'Post not found' });
+
+//     const idx = post.likes.indexOf(req.userId);
+//     if (idx === -1) post.likes.push(req.userId);
+//     else post.likes.splice(idx, 1);
+//     await post.save();
+
+//     res.json({ likeCount: post.likes.length });
+//   } catch (err) {
+//     console.error('Like error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// // PATCH /api/posts/:id — update own post
+// router.patch('/:id', auth, async (req, res) => {
+//   const { id } = req.params;
+
+//   // Validate ID format
+//   if (!mongoose.Types.ObjectId.isValid(id)) {
+//     return res.status(400).json({ error: 'Invalid post ID' });
+//   }
+
+//   try {
+//     const post = await Post.findById(id);
+//     if (!post) return res.status(404).json({ error: 'Post not found' });
+//     if (post.author.toString() !== req.userId) {
+//       return res.status(403).json({ error: 'Forbidden' });
+//     }
+
+//     const { content, tags } = req.body;
+//     if (content !== undefined) post.content = content;
+//     if (tags !== undefined) post.tags = tags;
+//     await post.save();
+
+//     const populated = await post.populate('author', 'username');
+//     res.json(populated);
+//   } catch (err) {
+//     console.error('Update post error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+
+
+
+// // GET /api/posts?tag=foo
+// router.get("/", async (req, res, next) => {
+//   try {
+//     const { tag } = req.query;
+//     const filter = tag ? { tags: tag } : {};
+//     const posts = await Post.find(filter)
+//       .sort({ createdAt: -1 })
+//       .populate("author", "username")
+//       .lean()
+//       .exec();
+//     res.json(posts);
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
+// // GET /api/posts/tags
+// router.get("/tags", async (req, res, next) => {
+//   try {
+//     const tags = await Post.distinct("tags");
+//     res.json(tags);
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
+
+
+
+
+
+
+
+
+// // DELETE /api/posts/:id — delete own post
+// router.delete('/:id', auth, async (req, res) => {
+//   const { id } = req.params;
+
+//   // Validate ID format
+//   if (!mongoose.Types.ObjectId.isValid(id)) {
+//     return res.status(400).json({ error: 'Invalid post ID' });
+//   }
+
+//   try {
+//     const post = await Post.findById(id);
+//     if (!post) return res.status(404).json({ error: 'Post not found' });
+//     if (post.author.toString() !== req.userId) {
+//       return res.status(403).json({ error: 'Forbidden' });
+//     }
+//     await post.deleteOne();
+//     res.json({ success: true });
+//   } catch (err) {
+//     console.error('Delete post error:', err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// export default router;
+
+
+
+
+
+
+// server/routes/posts.js
 import express from 'express';
+import mongoose from 'mongoose';
 import { auth } from '../middleware/auth.js';
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
-import mongoose from 'mongoose';
 
 const router = express.Router();
 
-
-
-// GET /api/posts — list all posts with comment count
-router.get('/', auth, async (_req, res) => {
+// GET /api/posts — list all posts, or filtered by tag
+router.get('/', auth, async (req, res) => {
   try {
-    const posts = await Post.find()
+    const { tag } = req.query;
+    const filter = tag ? { tags: tag } : {};
+
+    const posts = await Post.find(filter)
       .sort({ createdAt: -1 })
       .populate('author', 'username');
 
-    // Add commentCount for each post
     const postsWithCounts = await Promise.all(
       posts.map(async (post) => {
-        const commentCount = await Comment.countDocuments({ post: post._id });
-        return {
-          ...post.toObject(),
-          commentCount,
-        };
+        const count = await Comment.countDocuments({ post: post._id });
+        return { ...post.toObject(), commentCount: count };
       })
     );
 
@@ -34,34 +310,43 @@ router.get('/', auth, async (_req, res) => {
   }
 });
 
+// GET /api/posts/tags — return list of distinct tags
+router.get('/tags', auth, async (_req, res) => {
+  try {
+    const tags = await Post.distinct('tags');
+    res.json(tags);
+  } catch (err) {
+    console.error('Fetch tags error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
-//post
+// POST /api/posts — create a new post
 router.post('/', auth, async (req, res) => {
   try {
     const { content, tags = [] } = req.body;
     const post = new Post({ author: req.userId, content, tags, likes: [] });
     await post.save();
 
-    // ✅ Populate author before returning
-    const populatedPost = await post.populate('author', 'username');
-
-    res.status(201).json(populatedPost);
+    const populated = await post.populate('author', 'username');
+    res.status(201).json(populated);
   } catch (err) {
     console.error('Create post error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-
 // POST /api/posts/:id/like — toggle like
 router.post('/:id/like', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ error: 'Post not found' });
+
     const idx = post.likes.indexOf(req.userId);
     if (idx === -1) post.likes.push(req.userId);
     else post.likes.splice(idx, 1);
     await post.save();
+
     res.json({ likeCount: post.likes.length });
   } catch (err) {
     console.error('Like error:', err);
@@ -69,19 +354,26 @@ router.post('/:id/like', auth, async (req, res) => {
   }
 });
 
-// PATCH /api/posts/:id — update a post’s content and tags
+// PATCH /api/posts/:id — update own post
 router.patch('/:id', auth, async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid post ID' });
+  }
+
   try {
-    const post = await Post.findById(req.params.id);
-    if (!post || post.author.toString() !== req.userId) {
+    const post = await Post.findById(id);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    if (post.author.toString() !== req.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
     const { content, tags } = req.body;
     if (content !== undefined) post.content = content;
     if (tags !== undefined) post.tags = tags;
-
     await post.save();
+
     const populated = await post.populate('author', 'username');
     res.json(populated);
   } catch (err) {
@@ -91,25 +383,25 @@ router.patch('/:id', auth, async (req, res) => {
 });
 
 // DELETE /api/posts/:id — delete own post
-router.delete("/:id", auth, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   const { id } = req.params;
 
-  if (!mongoose.isValidObjectId(id)) {
-    return res.status(400).json({ error: "Invalid post ID" });
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid post ID' });
   }
 
-  const post = await Post.findById(id);
-  if (!post) return res.status(404).json({ error: "Not found" });
-
-  if (post.author.toString() !== req.userId) {
-    return res.status(403).json({ error: "Forbidden" });
+  try {
+    const post = await Post.findById(id);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    if (post.author.toString() !== req.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    await post.deleteOne();
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete post error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
-
-  await post.deleteOne();
-  res.json({ success: true });
 });
 
 export default router;
-
-
-

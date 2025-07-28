@@ -8,13 +8,12 @@ export default function LikeButton({ postId, currentLikes, onLike }) {
 
   const handleLike = async () => {
     try {
-      // send a "like" toggle to the server
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/posts/${postId}/like`,
         {},
         { withCredentials: true }
       );
-      // server returns updated like count
+      //  count
       onLike(res.data.likeCount);
     } catch (err) {
       console.error("Error liking post:", err);
