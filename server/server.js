@@ -1,4 +1,3 @@
-
 // server/server.js
 import { config } from 'dotenv';
 import path from 'path';
@@ -23,19 +22,18 @@ config(); // loads from server/.env
 const app = express();
 
 // 3. MIDDLEWARE (must come BEFORE routes)
+//    Use FRONTEND_URL env var or default to localhost
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: FRONTEND_URL,
     credentials: true,
     optionsSuccessStatus: 200,
   })
 );
-console.log(
-  'CORS origin allowed:',
-  process.env.FRONTEND_URL || 'http://localhost:5173'
-);
+console.log('CORS origin allowed:', FRONTEND_URL);
 
 // 4. ROUTES
 app.use('/api/auth', authRoutes);
@@ -77,7 +75,7 @@ if (process.env.NODE_ENV !== 'test') {
   })();
 }
 
-// 7. Graceful shutdown (works even in test mode if you choose to send SIGTERM)
+// 7. Graceful shutdown
 process.on('SIGTERM', () => {
   mongoose.connection.close(false, () => {
     console.log('MongoDB connection closed.');
