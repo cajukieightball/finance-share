@@ -12,13 +12,11 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    // Check for duplicates
     if (await User.findOne({ $or: [{ username }, { email }] })) {
       return res.status(409).json({ error: 'Username or email already in use' });
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({ username, email, passwordHash });
-    // Create JWT
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
@@ -74,7 +72,6 @@ router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('-passwordHash');
     if (!user) return res.status(404).json({ error: 'User not found' });
-    // Return flat userId along with other basic info
     res.json({
       userId: user._id,
       username: user.username,

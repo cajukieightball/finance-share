@@ -334,7 +334,7 @@ input::placeholder, textarea::placeholder {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background-color: #1f2937; /* dark background */
+  background-color: #1f2937; 
   padding: 1rem;
   border-radius: 10px;
   margin-bottom: 1.5rem;

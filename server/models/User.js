@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true, trim: true },
     email: { type: String, required: true, unique: true, trim: true },
-    // renamed to match what we set in the register route
     passwordHash: { type: String, required: true },
   },
   {
@@ -13,5 +12,5 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-// no virtual “password” field – we only store the hashed version
+
 export default mongoose.model("User", userSchema);
