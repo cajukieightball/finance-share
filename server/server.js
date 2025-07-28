@@ -22,13 +22,8 @@ const app = express();
 
 // 3. CORS + MIDDLEWARE
 // Temporarily allow all origins and handle preflight for previews
-app.use(
-  cors({
-    origin: (origin, callback) => callback(null, true),
-    credentials: true,
-  })
-);
-app.options('*', cors());
+app.use(cors({ origin: true, credentials: true }));
+ // handle preflight for all routes
 console.log('CORS configured to allow any origin and handle OPTIONS for all routes');
 
 app.use(express.json());
