@@ -6,8 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import { connectDB } from './config/db.js'
-;
+import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import postsRoutes from './routes/posts.js';
 import commentsRoutes from './routes/comments.js';
@@ -21,16 +20,28 @@ config(); // loads from server/.env
 // 2. EXPRESS SETUP
 const app = express();
 
-// 3. MIDDLEWARE (must come BEFORE routes)
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+// 3. CORS + MIDDLEWARE
+// Allow your production frontend and any Vercel preview URLs
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: (origin, callback) => {
+     
+      if (!origin) return callback(null, true);
+      const allowed = [
+        process.env.FRONTEND_URL,  
+        /\.vercel\.app$/         
+      ];
+      const isAllowed = allowed.some(o =>
+        (typeof o === 'string' && o === origin) ||
+        (o instanceof RegExp && o.test(origin))
+      );
+      callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+    },
     credentials: true,
     optionsSuccessStatus: 200,
   })
 );
-console.log('CORS origin allowed:', FRONTEND_URL);
+console.log('CORS configured for:', process.env.FRONTEND_URL, 'and Vercel previews');
 
 app.use(express.json());
 app.use(cookieParser());
