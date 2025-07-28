@@ -6,7 +6,8 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import { connectDB } from './config/db.js';
+import { connectDB } from './config/db.js'
+;
 import authRoutes from './routes/auth.js';
 import postsRoutes from './routes/posts.js';
 import commentsRoutes from './routes/comments.js';
@@ -21,7 +22,6 @@ config(); // loads from server/.env
 const app = express();
 
 // 3. MIDDLEWARE (must come BEFORE routes)
-//    Use FRONTEND_URL env var or default to localhost
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 app.use(
   cors({
@@ -30,7 +30,6 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
-app.options('*', cors({ origin: FRONTEND_URL, credentials: true }));
 console.log('CORS origin allowed:', FRONTEND_URL);
 
 app.use(express.json());
@@ -47,8 +46,7 @@ app.get('/health', (req, res) =>
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    database:
-      mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     memoryUsage: process.memoryUsage(),
   })
 );
