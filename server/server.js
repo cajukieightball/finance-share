@@ -21,14 +21,15 @@ config(); // loads from server/.env
 const app = express();
 
 // 3. CORS + MIDDLEWARE
-// Allow your production frontend and any Vercel preview URLs
-app.use(cors({
- origin: (origin, callback) => callback(null, true),
-  credentials: true,
-}));
-
+// Temporarily allow all origins and handle preflight for previews
+app.use(
+  cors({
+    origin: (origin, callback) => callback(null, true),
+    credentials: true,
+  })
+);
 app.options('*', cors());
-console.log('CORS configured for:', process.env.FRONTEND_URL, 'and Vercel previews');
+console.log('CORS configured to allow any origin and handle OPTIONS for all routes');
 
 app.use(express.json());
 app.use(cookieParser());
