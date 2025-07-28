@@ -8,35 +8,35 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // On mount, check session
+  // On mount, check session via Token
   useEffect(() => {
-    api
-      .get('/auth/me', { withCredentials: true })
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    api.get('/auth/me')
       .then(({ data }) => setUser(data.user))
-      .catch(() => setUser(null));
+      .catch(() => {
+        localStorage.removeItem('token');
+        setUser(null);
+      });
   }, []);
 
   const register = async (username, email, password) => {
-    await api.post(
-      '/auth/register',
-      { username, email, password },
-      { withCredentials: true }
-    );
-    return login(email, password);
+    const { data } = await api.post('/auth/register', { username, email, password });
+    localStorage.setItem('token', data.token);
+    setUser(data.user);
+    navigate('/feed');
   };
 
   const login = async (email, password) => {
-    const { data } = await api.post(
-      '/auth/login',
-      { email, password },
-      { withCredentials: true }
-    );
+    const { data } = await api.post('/auth/login', { email, password });
+    localStorage.setItem('token', data.token);
     setUser(data.user);
     navigate('/feed');
   };
 
   const logout = async () => {
-    await api.post('/auth/logout', {}, { withCredentials: true });
+    await api.post('/auth/logout');
+    localStorage.removeItem('token');
     setUser(null);
     navigate('/');
   };
@@ -48,7 +48,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Custom hook
 export function useAuth() {
   return useContext(AuthContext);
 }

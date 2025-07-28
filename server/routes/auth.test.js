@@ -1,17 +1,13 @@
+// routes/auth.test.js
 import request from 'supertest';
 import app from '../server.js';
 import mongoose from 'mongoose';
 
 beforeAll(async () => {
-  // 1) connect to the test database
+  // connect to the test database…
   await mongoose.connect(process.env.MONGODB_URI_TEST);
-
-  // 2) clear every collection so tests start fresh
-  const collections = mongoose.connection.collections;
-  for (const name in collections) {
-    // delete all documents in this collection
-    await collections[name].deleteMany({});
-  }
+  // …then clear it out completely before running any tests
+  await mongoose.connection.db.dropDatabase();
 });
 
 afterAll(async () => {
