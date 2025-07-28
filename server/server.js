@@ -21,10 +21,25 @@ config(); // loads from server/.env
 const app = express();
 
 // 3. CORS + MIDDLEWARE
-// Temporarily allow all origins and handle preflight for previews
-app.use(cors({ origin: true, credentials: true }));
- // handle preflight for all routes
-console.log('CORS configured to allow any origin and handle OPTIONS for all routes');
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowed = [
+        process.env.FRONTEND_URL,  
+        /\.vercel\.app$/         
+      ];
+      const isAllowed = allowed.some(o =>
+        (typeof o === 'string' && o === origin) ||
+        (o instanceof RegExp && o.test(origin))
+      );
+      callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
+console.log('CORS configured for:', process.env.FRONTEND_URL, 'and Vercel previews');
 
 app.use(express.json());
 app.use(cookieParser());
