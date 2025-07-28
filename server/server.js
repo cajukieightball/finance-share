@@ -22,25 +22,12 @@ const app = express();
 
 // 3. CORS + MIDDLEWARE
 // Allow your production frontend and any Vercel preview URLs
-app.use(
-  cors({
-    origin: (origin, callback) => {
-     
-      if (!origin) return callback(null, true);
-      const allowed = [
-        process.env.FRONTEND_URL,  
-        /\.vercel\.app$/         
-      ];
-      const isAllowed = allowed.some(o =>
-        (typeof o === 'string' && o === origin) ||
-        (o instanceof RegExp && o.test(origin))
-      );
-      callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
-    },
-    credentials: true,
-    optionsSuccessStatus: 200,
-  })
-);
+app.use(cors({
+ origin: (origin, callback) => callback(null, true),
+  credentials: true,
+}));
+
+app.options('*', cors());
 console.log('CORS configured for:', process.env.FRONTEND_URL, 'and Vercel previews');
 
 app.use(express.json());
