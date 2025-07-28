@@ -41,19 +41,6 @@
   color: #888;
 }
 
-
-
-
-
-
-
-
-
-/*
-
-
-*/
-
 .post-card {
   background: #1e1e1e;
   border: 1px solid #333;
@@ -110,15 +97,6 @@
   z-index: 999;
 }
 
-
-
-
-
-/*
-
-
-
-*/
 
 .comment-form-container {
   margin-top: 1rem;
@@ -185,17 +163,6 @@
 }
 
 
-
-
-
-
-
-
-
-/*test*/
-
-/*App.css*/
-
 :root {
     --bg: #fff;
   --bg-dark: grey;
@@ -204,18 +171,7 @@
   --text: #0f1419;
   --text-light: #e1e8ed;
 }
-/* /* :root {
 
-    --bg-color: #f0f2f5;
-  --text-color: #ffffff;
-  /* --card-color: #ffffff; */
-  /* --card-color: #050505;
-  --button-color: #e4e6eb;
-  --sidebar-bg: #ffffff;
-  --sidebar-text: #050505;
-  --input-bg: #ffffff;
-  --input-text: #1c1e21;
-} */  
 
 [data-theme='dark'] {
   /* --bg-color: #0d1117;
@@ -366,11 +322,6 @@ input, textarea {
 input::placeholder, textarea::placeholder {
   color: #65676b;
 }
-
-
-
-
-/* alignment of Tag and whats in you mind */
 
 
 .feed-container {
