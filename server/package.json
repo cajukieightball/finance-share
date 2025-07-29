@@ -10,8 +10,7 @@
     "test:ci": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules CI=true jest",
     "lint": "eslint --fix --ext .js,.jsx .",
     "format": "prettier --write .",
-    "healthcheck": "node -e \"import('node-fetch').then(m=>m.default('http://localhost:4000/health').then(r=>r.json()).then(console.log)).catch(console.error)\"",
-    "prestart": "npm run build"
+    "healthcheck": "node -e \"import('node-fetch').then(m=>m.default('http://localhost:4000/health').then(r=>r.json()).then(console.log)).catch(console.error)\""
   },
   "keywords": [],
   "author": "",
