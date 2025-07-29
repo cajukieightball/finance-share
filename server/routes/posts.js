@@ -59,14 +59,32 @@ router.post('/', auth, async (req, res) => {
 
 // POST /api/posts/:id/like — toggle like
 router.post('/:id/like', auth, async (req, res) => {
+  console.log('=== Like Handler ===');
+  console.log('User ID:', req.userId);
+  console.log('Post ID:', req.params.id);
+
   try {
     const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ error: 'Post not found' });
+     console.log('Fetched post:', post);
+
+    if (!post) {
+      console.log('→ No post found, returning 404');
+      return res.status(404).json({ error: 'Post not found' });
+    } 
 
     const idx = post.likes.indexOf(req.userId);
-    if (idx === -1) post.likes.push(req.userId);
-    else post.likes.splice(idx, 1);
-    await post.save();
+     console.log('Existing likes:', post.likes, 'Index of user:', idx);
+
+    if (idx === -1) {
+      post.likes.push(req.userId);
+      console.log('Pushed userId into likes:', post.likes);
+    } else {
+      post.likes.splice(idx, 1);
+       console.log('Removed userId from likes:', post.likes);
+    }
+
+    const saved = await post.save();
+    console.log('Saved post:', saved);
 
     res.json({ likeCount: post.likes.length });
   } catch (err) {
@@ -103,7 +121,7 @@ router.patch('/:id', auth, async (req, res) => {
   }
 });
 
-// DELETE /api/posts/:id — delete own post
+// DELETE /api/posts/:id — 
 router.delete('/:id', auth, async (req, res) => {
   const { id } = req.params;
 

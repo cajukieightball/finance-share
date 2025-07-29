@@ -1,3 +1,4 @@
+
 // server/server.js
 import { config } from 'dotenv';
 import path from 'path';
@@ -7,83 +8,86 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db.js';
+
 import authRoutes from './routes/auth.js';
 import postsRoutes from './routes/posts.js';
 import commentsRoutes from './routes/comments.js';
 import userRoutes from './routes/users.js';
 
-// 1. ENVIRONMENT & PATH
+// 1. Load env
+config();
+
+// 2. Path helpers (if you need them)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-config(); // loads from server/.env
 
-// 2. EXPRESS SETUP
+// 3. Express init
 const app = express();
 
-// 3. CORS + MIDDLEWARE
+// 4. CORS — only your front‑end and localhost for dev
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      const allowed = [
-        process.env.FRONTEND_URL,  
-        /\.vercel\.app$/         
-      ];
-      const isAllowed = allowed.some(o =>
-        (typeof o === 'string' && o === origin) ||
-        (o instanceof RegExp && o.test(origin))
-      );
-      callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
-    },
+    origin: FRONTEND_URL,
     credentials: true,
     optionsSuccessStatus: 200,
   })
 );
-console.log('CORS configured for:', process.env.FRONTEND_URL, 'and Vercel previews');
 
+// 5. Body + cookie parsing
 app.use(express.json());
 app.use(cookieParser());
 
-// 4. ROUTES
+//temporary debug
+app.get('/api/debug/users', async (req, res) => {
+  try {
+    const users = await mongoose.connection.db.collection('users').find().toArray();
+    // Hide passwords in response
+    const sanitizedUsers = users.map(user => {
+      const { password, ...rest } = user;
+      return rest;
+    });
+    res.json(sanitizedUsers);
+  } catch (err) {
+    console.error('Debug route error:', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+
+
+// 6. Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/comments', commentsRoutes);
 app.use('/api/users', userRoutes);
+app.use(cookieParser());
 
-// 5. Health check route
-app.get('/health', (req, res) =>
+// 7. Health check
+app.get('/health', (_req, res) =>
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    memoryUsage: process.memoryUsage(),
   })
 );
 
-// 6. CONDITIONAL STARTUP
+// 8. Start server (unless testing)
 if (process.env.NODE_ENV !== 'test') {
-  (async function startServer() {
-    try {
-      await connectDB();
-      console.log('\nMongoDB connected:', mongoose.connection.readyState);
-
+  connectDB()
+    .then(() => {
       const PORT = process.env.PORT || 4000;
-      const server = app.listen(PORT, '0.0.0.0', () => {
+      app.listen(PORT, '0.0.0.0', () => {
         console.log(`Server listening on http://0.0.0.0:${PORT}`);
       });
-
-      server.on('error', (err) => {
-        console.error('Server error:', err);
-        process.exit(1);
-      });
-    } catch (err) {
+    })
+    .catch((err) => {
       console.error('Startup error:', err);
       process.exit(1);
-    }
-  })();
+    });
 }
 
-// 7. Graceful shutdown
+// 9. Graceful shutdown
 process.on('SIGTERM', () => {
   mongoose.connection.close(false, () => {
     console.log('MongoDB connection closed.');
@@ -91,5 +95,4 @@ process.on('SIGTERM', () => {
   });
 });
 
-// 8. EXPORT APP FOR TESTS
 export default app;

@@ -1,24 +1,27 @@
 // server/middleware/auth.js
 import jwt from 'jsonwebtoken';
 
-// Protect routes by verifying JWT from Authorization header
+
 export function auth(req, res, next) {
-  // Expect header: Authorization: Bearer <token>
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.slice('Bearer '.length)
-    : null;
+   console.log('Incoming token header:', req.headers.authorization);
+  console.log('Incoming token cookie:', req.cookies?.token);
+  let token = req.cookies?.token;
+
+
+  if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
 
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = payload.userId;
-    return next();
+    const { userId } = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = userId;
+    next();
   } catch (err) {
-    console.error('Auth middleware error:', err);
+    console.error('Auth error:', err);
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 }

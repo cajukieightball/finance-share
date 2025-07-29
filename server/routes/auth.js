@@ -8,7 +8,8 @@ import { auth } from '../middleware/auth.js';
 const router = express.Router();
 
 function signToken(userId) {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '10d' });
+  // return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '10d' });
+  return jwt.sign({ userId }, process.env.JWT_SECRET);
 }
 
 // POST /api/auth/register
