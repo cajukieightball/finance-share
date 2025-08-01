@@ -21,14 +21,14 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Public routes */}
+
       <Route path="/" element={<AuthPage />} />
       <Route path="/login" element={<AuthPage isLogin />} />
       <Route path="/register" element={<AuthPage isLogin={false} />} />
 
-      {/* Protected routes with shared layout */}
+
       <Route
-        path="/*"  {/* Added wildcard */}
+        path="/*"
         element={
           <ProtectedRoute>
             <div className="app-grid">
@@ -39,7 +39,7 @@ export default function App() {
                 <Sidebar />
               </aside>
               <main className="feed">
-                {/* Removed nested Routes - all routes now defined here */}
+
                 <Routes>
                   <Route path="feed" element={<FeedPage />} />
                   <Route path="profile" element={<ProfilePage />} />
@@ -58,16 +58,16 @@ export default function App() {
         }
       />
 
-      {/* Catch-all  */}
-      <Route 
-        path="*" 
+
+      <Route
+        path="*"
         element={
-          <Navigate 
-            to={user ? "/feed" : "/"} 
-            replace 
-            state={{ from: location.pathname }} 
+          <Navigate
+            to={user ? "/feed" : "/"}
+            replace
+            state={{ from: location.pathname }}
           />
-        } 
+        }
       />
     </Routes>
   );

@@ -1,4 +1,3 @@
-// server/routes/users.js
 import express from 'express';
 import mongoose from 'mongoose';
 import { auth } from '../middleware/auth.js';
@@ -8,7 +7,6 @@ import Comment from '../models/Comment.js';
 
 const router = express.Router();
 
-// GET /api/users/:id — view profile
 router.get('/:id', auth, async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -27,7 +25,6 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
-// PUT /api/users/:id — update username/email
 router.put('/:id', auth, async (req, res) => {
   const { id } = req.params;
   const { username, email } = req.body;
@@ -54,7 +51,6 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-// DELETE /api/users/:id — delete account
 router.delete('/:id', auth, async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -72,7 +68,6 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// GET /api/users/:id/profile
 router.get('/:id/profile', auth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('username createdAt');

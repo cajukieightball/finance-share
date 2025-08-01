@@ -1,4 +1,3 @@
-// server/routes/comments.js
 import express from 'express';
 import mongoose from 'mongoose';
 import Comment from '../models/Comment.js';
@@ -6,7 +5,6 @@ import { auth as requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/comments?postId=...  — list comments for a post
 router.get('/', requireAuth, async (req, res) => {
   const { postId } = req.query;
   if (!postId) return res.status(400).json({ error: 'postId is required' });
@@ -22,7 +20,6 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/comments  — create a new comment
 router.post('/', requireAuth, async (req, res) => {
   const { postId, content } = req.body;
   if (!postId || !content) {
@@ -44,12 +41,10 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// PATCH /api/comments/:id  — edit own comment
 router.patch('/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
   const { content } = req.body;
 
-  // Validate ID format
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: 'Invalid comment ID' });
   }
@@ -75,11 +70,9 @@ router.patch('/:id', requireAuth, async (req, res) => {
   }
 });
 
-// DELETE /api/comments/:id  — delete own comment
 router.delete('/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
 
-  // Validate ID format
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: 'Invalid comment ID' });
   }
@@ -101,4 +94,9 @@ router.delete('/:id', requireAuth, async (req, res) => {
 });
 
 export default router;
+
+
+
+
+
 

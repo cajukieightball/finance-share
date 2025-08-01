@@ -1,86 +1,65 @@
-import React, { useState, useEffect } from "react";
-import api from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function CommentList({ postId }) {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
-  const [status, setStatus] = useState("loading");
-  const [errMsg, setErrMsg] = useState("");
-  const [editingCommentId, setEditingCommentId] = useState(null);
-  const [editContent, setEditContent] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editText, setEditText] = useState('');
 
   const fetchComments = async () => {
-    try {
-      setStatus("loading");
-      const res = await api.get("/comments", { params: { postId } });
-      if (!Array.isArray(res.data)) throw new Error("Unexpected response format");
-      setComments(res.data);
-      setStatus("ready");
-    } catch (err) {
-      console.error("💥 CommentList fetch error:", err);
-      setErrMsg(err.message || "Unknown error");
-      setStatus("error");
-    }
+    const { data } = await api.get('/comments', { params: { postId } });
+    setComments(data);
   };
 
   useEffect(() => {
     fetchComments();
   }, [postId]);
 
-  const handleCommentSave = async (commentId) => {
-    await api.patch(`/comments/${commentId}`, { content: editContent });
-    setEditingCommentId(null);
-    setEditContent("");
+  const handleSave = async id => {
+    await api.patch(`/comments/${id}`, { content: editText });
+    setEditId(null);
     fetchComments();
   };
 
-  const handleDelete = async (commentId) => {
-    if (!window.confirm("Delete this comment?")) return;
-    await api.delete(`/comments/${commentId}`);
+  const handleDelete = async id => {
+    if (!window.confirm('Delete this comment?')) return;
+    await api.delete(`/comments/${id}`);
     fetchComments();
   };
-
-  if (status === "loading") return <div>Loading comments…</div>;
-
-  if (status === "error") {
-    return (
-      <div style={{ background: "#fee", padding: 8 }}>
-        <strong>Error loading comments:</strong> {errMsg}
-      </div>
-    );
-  }
 
   return (
     <div className="comment-list">
-      {comments.map((comment) => (
-        <div key={comment._id} className="comment-item">
-          <strong>{comment.author?.username || "?"}</strong>:
-          {editingCommentId === comment._id ? (
+      {comments.map(c => (
+        <div key={c._id} className="comment-item">
+          <strong>{c.author.username}</strong>{' '}
+          <em>{new Date(c.createdAt).toLocaleString()}</em>
+
+          {editId === c._id ? (
             <>
               <textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
+                value={editText}
+                onChange={e => setEditText(e.target.value)}
               />
-              <button onClick={() => handleCommentSave(comment._id)}>Save</button>
-              <button onClick={() => setEditingCommentId(null)}>Cancel</button>
+              <button onClick={() => handleSave(c._id)}>Save</button>
+              <button onClick={() => setEditId(null)}>Cancel</button>
             </>
           ) : (
+            <p>{c.content}</p>
+          )}
+
+          {c.author._id === user._id && editId !== c._id && (
             <>
-              <span> {comment.content}</span>
-              {comment.author?._id === user?._id && (
-                <>
-                  <button
-                    onClick={() => {
-                      setEditingCommentId(comment._id);
-                      setEditContent(comment.content);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(comment._id)}>🗑️</button>
-                </>
-              )}
+              <button onClick={() => {
+                setEditId(c._id);
+                setEditText(c.content);
+              }}>
+                ✏️
+              </button>
+              <button onClick={() => handleDelete(c._id)} style={{ color: 'red' }}>
+                🗑️
+              </button>
             </>
           )}
         </div>

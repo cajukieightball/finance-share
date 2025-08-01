@@ -49,7 +49,7 @@ export default function ProfilePage() {
       <main style={{ flex: 1 }}>
         <h3>{u.username}’s Posts</h3>
         {posts.map((p) => (
-          <PostCard key={p._id} post={p} onCommentOrLike={() => {}} onDeleted={() => {}} />
+          <PostCard key={p._id} post={p} onCommentOrLike={() => { }} onDeleted={() => { }} />
         ))}
       </main>
     </div>

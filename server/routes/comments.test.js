@@ -10,7 +10,6 @@ beforeAll(async () => {
     await col.deleteMany({});
   }
 
-  // register & login user
   const email = `cuser+${Date.now()}@example.com`;
   const password = 'cpass1234';
   await request(app)
@@ -24,7 +23,6 @@ beforeAll(async () => {
     .expect(200);
   cookie = login.headers['set-cookie'][0];
 
-  // create a post to comment on
   const postRes = await request(app)
     .post('/api/posts')
     .set('Cookie', cookie)
@@ -99,7 +97,6 @@ describe('Comments routes', () => {
   });
 
   it('rejects delete by another user', async () => {
-    // create a new comment
     const res2 = await request(app)
       .post('/api/comments')
       .set('Cookie', cookie)
@@ -107,7 +104,6 @@ describe('Comments routes', () => {
       .expect(201);
     const newCommentId = res2.body._id;
 
-    // register & login second user
     const email2 = `cuser2+${Date.now()}@example.com`;
     const password2 = 'abc12345';
     await request(app)

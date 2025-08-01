@@ -1,7 +1,7 @@
 export default function TagList({ tags, selectedTag, onTagClick }) {
   return (
     <div style={{ marginBottom: "1rem" }}>
-      {tags.map(tag => (
+      {tags.map((tag) => (
         <button
           key={tag}
           onClick={() => onTagClick(tag === selectedTag ? "" : tag)}
@@ -12,7 +12,7 @@ export default function TagList({ tags, selectedTag, onTagClick }) {
             border: tag === selectedTag ? "2px solid #fff" : "1px solid #555",
             background: "transparent",
             color: tag === selectedTag ? "#fff" : "#aaa",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           {tag}

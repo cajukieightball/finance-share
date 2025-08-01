@@ -1,7 +1,7 @@
+
 import mongoose from "mongoose";
 
 export async function connectDB() {
-  // Debug output
   console.log("🔍 Connection Debug:");
   console.log("- Using URI:", process.env.MONGODB_URI?.slice(0, 25) + "...");
 
@@ -12,10 +12,8 @@ export async function connectDB() {
   };
 
   try {
-    // New connection syntax for Mongoose 8+
     await mongoose.connect(process.env.MONGODB_URI, options);
 
-    // Verify connection
     mongoose.connection.on("connected", () => {
       console.log("MongoDB Connected!");
       console.log("- Host:", mongoose.connection.host);
@@ -23,7 +21,6 @@ export async function connectDB() {
       console.log("- State:", mongoose.connection.readyState); 
     });
 
-    // Error handling
     mongoose.connection.on("error", (err) => {
       console.error("Connection error:", err.message);
     });

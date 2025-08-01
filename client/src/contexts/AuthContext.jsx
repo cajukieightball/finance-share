@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Spinner } from '../components/Spinner';
@@ -14,16 +20,10 @@ export function AuthProvider({ children }) {
   const checkAuth = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setAuthChecked(true);
-        return;
-      }
-
+      
       const { data } = await api.get('/auth/me');
       setUser(data.user);
-    } catch (err) {
-      localStorage.removeItem('token');
+    } catch {
       setUser(null);
     } finally {
       setAuthChecked(true);
@@ -38,8 +38,11 @@ export function AuthProvider({ children }) {
   const register = async (username, email, password) => {
     setLoading(true);
     try {
-      const { data } = await api.post('/auth/register', { username, email, password });
-      localStorage.setItem('token', data.token);
+      const { data } = await api.post('/auth/register', {
+        username,
+        email,
+        password,
+      });
       setUser(data.user);
       navigate('/feed');
     } finally {
@@ -51,7 +54,6 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', data.token);
       setUser(data.user);
       navigate('/feed');
     } finally {
@@ -63,7 +65,6 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       await api.post('/auth/logout');
-      localStorage.removeItem('token');
       setUser(null);
       navigate('/');
     } finally {
@@ -71,22 +72,13 @@ export function AuthProvider({ children }) {
     }
   };
 
-
   if (!authChecked || loading) {
     return <Spinner fullScreen />;
   }
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        authChecked,
-        register,
-        login,
-        logout,
-        checkAuth
-      }}
+      value={{ user, loading, authChecked, register, login, logout, checkAuth }}
     >
       {children}
     </AuthContext.Provider>
@@ -94,9 +86,11 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 }
+
+
+
+
+
+

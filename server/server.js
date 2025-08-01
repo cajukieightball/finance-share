@@ -1,5 +1,3 @@
-
-// server/server.js
 import { config } from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,23 +6,18 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db.js';
-
 import authRoutes from './routes/auth.js';
 import postsRoutes from './routes/posts.js';
 import commentsRoutes from './routes/comments.js';
 import userRoutes from './routes/users.js';
 
-// 1. Load env
 config();
 
-// 2. Path helpers (if you need them)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 3. Express init
 const app = express();
 
-// 4. CORS — only your front‑end and localhost for dev
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 app.use(
   cors({
@@ -34,15 +27,12 @@ app.use(
   })
 );
 
-// 5. Body + cookie parsing
 app.use(express.json());
 app.use(cookieParser());
 
-//temporary debug
 app.get('/api/debug/users', async (req, res) => {
   try {
     const users = await mongoose.connection.db.collection('users').find().toArray();
-    // Hide passwords in response
     const sanitizedUsers = users.map(user => {
       const { password, ...rest } = user;
       return rest;
@@ -54,16 +44,12 @@ app.get('/api/debug/users', async (req, res) => {
   }
 });
 
-
-
-// 6. Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/comments', commentsRoutes);
 app.use('/api/users', userRoutes);
 app.use(cookieParser());
 
-// 7. Health check
 app.get('/health', (_req, res) =>
   res.json({
     status: 'healthy',
@@ -72,7 +58,6 @@ app.get('/health', (_req, res) =>
   })
 );
 
-// 8. Start server (unless testing)
 if (process.env.NODE_ENV !== 'test') {
   connectDB()
     .then(() => {
@@ -87,7 +72,6 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
-// 9. Graceful shutdown
 process.on('SIGTERM', () => {
   mongoose.connection.close(false, () => {
     console.log('MongoDB connection closed.');
@@ -96,3 +80,6 @@ process.on('SIGTERM', () => {
 });
 
 export default app;
+
+
+

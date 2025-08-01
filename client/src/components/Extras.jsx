@@ -1,4 +1,3 @@
-// client/src/components/Extras.jsx
 import React from "react";
 
 export default function Extras() {

@@ -13,9 +13,7 @@ export default function FeedPage() {
 
   const fetchPosts = async (tag = '') => {
     try {
-      const res = await api.get(`/posts${tag ? `?tag=${tag}` : ''}`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`/posts${tag ? `?tag=${tag}` : ''}`);
       setPosts(res.data);
     } catch (err) {
       console.error('Fetch posts error:', err);
@@ -24,7 +22,7 @@ export default function FeedPage() {
 
   const fetchTags = async () => {
     try {
-      const res = await api.get('/posts/tags', { withCredentials: true });
+      const res = await api.get('/posts/tags');
       setTags(res.data);
     } catch (err) {
       console.error('Fetch tags error:', err);
@@ -49,17 +47,13 @@ export default function FeedPage() {
   const handlePost = async () => {
     if (!content.trim()) return;
     try {
-      await api.post(
-        '/posts',
-        {
-          content,
-          tags: newTags
-            .split(',')
-            .map((t) => t.trim())
-            .filter((t) => t.length > 0),
-        },
-        { withCredentials: true }
-      );
+      await api.post('/posts', {
+        content,
+        tags: newTags
+          .split(',')
+          .map((t) => t.trim())
+          .filter((t) => t.length > 0),
+      });
       setContent('');
       setNewTags('');
       fetchPosts(selectedTag);
@@ -111,7 +105,7 @@ export default function FeedPage() {
         )}
       </div>
 
-      {/* Post Input Section */}
+      {/* Post Input */}
       <div className="post-input-container">
         <textarea
           className="post-textarea"
@@ -119,7 +113,6 @@ export default function FeedPage() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-
         <input
           className="tag-input"
           type="text"
@@ -127,24 +120,24 @@ export default function FeedPage() {
           value={newTags}
           onChange={(e) => setNewTags(e.target.value)}
         />
-
         <button className="post-button" onClick={handlePost}>
           Post
         </button>
       </div>
 
+      {/* Posts */}
       {posts.length === 0 && <p>No posts yet.</p>}
-
       {posts.map((post) => (
         <PostCard
           key={post._id}
           post={post}
           onCommentOrLike={() => fetchPosts(selectedTag)}
+          onDeleted={(deletedId) =>
+            setPosts((prev) => prev.filter((p) => p._id !== deletedId))
+          }
         />
       ))}
     </div>
   );
 }
-
-
 

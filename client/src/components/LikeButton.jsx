@@ -1,4 +1,3 @@
-// src/components/LikeButton.jsx
 import React from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -13,7 +12,7 @@ export default function LikeButton({ postId, currentLikes, onLike }) {
         {},
         { withCredentials: true }
       );
-      //  count
+     
       onLike(res.data.likeCount);
     } catch (err) {
       console.error("Error liking post:", err);

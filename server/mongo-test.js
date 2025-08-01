@@ -1,4 +1,3 @@
-// Updated test script (server/mongo-test.js)
 import { MongoClient } from "mongodb";
 
 const testConnection = async () => {

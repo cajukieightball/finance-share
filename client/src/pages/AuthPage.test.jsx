@@ -17,11 +17,8 @@ describe('AuthPage', () => {
 
     render(<AuthPage />);
 
-    // Grab inputs by placeholder text
     const emailInput = screen.getByPlaceholderText(/you@example\.com/i);
     const passInput  = screen.getByPlaceholderText(/•+/);
-
-    //  two "Log In" buttons (toggle & submit),
     const loginButtons = screen.getAllByRole('button', { name: /log in/i });
     const submitBtn = loginButtons.find(btn => btn.getAttribute('type') === 'submit');
 
@@ -39,17 +36,16 @@ describe('AuthPage', () => {
     vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({ login, register, user: null });
 
     render(<AuthPage />);
-    // Click the toggle "Sign Up" button 
+    
     const toggleButtons = screen.getAllByRole('button', { name: /sign up/i });
     const toggleBtn = toggleButtons.find(btn => btn.getAttribute('type') !== 'submit');
     await userEvent.click(toggleBtn);
 
-    //grab inputs by placeholder
+    
     const userInput  = screen.getByPlaceholderText(/choose a username/i);
     const emailInput = screen.getByPlaceholderText(/you@example\.com/i);
     const passInput  = screen.getByPlaceholderText(/•+/);
 
-    // find the submit "Sign Up" button
     const signUpButtons = screen.getAllByRole('button', { name: /sign up/i });
     const submitBtn = signUpButtons.find(btn => btn.getAttribute('type') === 'submit');
 

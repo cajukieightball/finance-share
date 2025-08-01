@@ -1,4 +1,3 @@
-// client/src/App.jsx
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
@@ -16,8 +15,8 @@ import './App.css';
 export default function App() {
   const { user, loading, authChecked } = useAuth();
   const location = useLocation();
-
-  // show spinner until we know auth state
+   
+  
   if (!authChecked || loading) {
     return <Spinner fullScreen />;
   }
